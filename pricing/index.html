@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Akhada · The gym console</title>
+<meta name="description" content="Akhada runs the gym: members, check-ins, money, a staff app and a member app. One product, one price for the gym. Made in Vadodara.">
+<link rel="icon" href="img/mark_teal.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500;800&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#000; --ink-2:#555; --ink-3:#8A8A8A; --cream:#F7F7F7; --line:#ECECEC; --line-2:#DEDEDE;
+          --brand:#10606B; --brand-2:#0B4952; --tint:#E2F0F1; --parchment:#F4EDE2; --espresso:#3E3427; }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--cream); color:var(--ink); font-family:'Nunito Sans', system-ui, sans-serif; line-height:1.5; }
+  a { color:inherit; text-decoration:none; }
+  .display { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:.02em; line-height:1; }
+  .wrap { max-width:1120px; margin:0 auto; padding:96px 40px; width:100%; }
+  .kicker { font-size:12px; font-weight:700; color:var(--brand); letter-spacing:.16em; text-transform:uppercase; }
+  .h2 { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:.02em; font-size:40px; line-height:1; margin:0; }
+  .p { font-size:16px; line-height:1.6; color:var(--ink-2); max-width:52ch; margin:0; }
+  .head { display:grid; gap:12px; max-width:760px; }
+  .band-sec { display:grid; gap:40px; }
+
+  /* the bar */
+  .bar { position:sticky; top:0; z-index:40; display:flex; align-items:center; gap:24px; padding:14px 40px; background:var(--cream); border-bottom:1px solid var(--ink); box-shadow:0 1px 0 var(--cream), 0 4px 14px rgba(0,0,0,.06); }
+  .bar__logo img { height:20px; display:block; }
+  .bar__links { margin-left:auto; display:flex; gap:22px; font-weight:700; font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+  .bar__links a { position:relative; padding:4px 0; }
+  .bar__links a::after { content:""; position:absolute; left:0; right:100%; bottom:-2px; border-top:2px solid var(--brand); transition:right .35s cubic-bezier(.16,1,.3,1); }
+  .bar__links a:hover::after { right:0; }
+  .bar__links a:hover { color:var(--brand); }
+  .bar__status { margin-left:0; display:inline-flex; align-items:center; gap:8px; font-size:10px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--brand); border:1px dashed var(--brand); padding:6px 12px; white-space:nowrap; }
+  .bar__status i { width:8px; height:8px; border-radius:50%; background:var(--brand); animation:pulse 1.8s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity:.25 } }
+  .btn { display:inline-flex; align-items:center; height:36px; padding:0 16px; border-radius:6px; font-size:12px; font-weight:600; background:var(--brand); color:#fff; }
+  .btn:hover { background:var(--brand-2); }
+
+  /* the fold */
+  .spread { display:grid; grid-template-columns:46% 1fr; min-height:calc(100vh - 62px); }
+  .hero { display:flex; align-items:center; padding:48px 56px 64px 40px; }
+  .hero__in { display:grid; gap:22px; max-width:520px; }
+  .hero__h1 { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:.01em; font-size:74px; line-height:.95; margin:0; }
+  .hero__p { font-size:17.5px; line-height:1.6; color:var(--ink-2); max-width:46ch; margin:0; }
+  .hero__ctas { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+  .hero__note { font-size:13.5px; color:var(--ink-2); }
+  .cta { display:inline-flex; align-items:center; justify-content:center; gap:10px; height:54px; min-width:200px; padding:0 26px; font-size:16px; font-weight:700; letter-spacing:.01em; transition:transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s, background .2s; }
+  .cta--ink { background:var(--brand); color:#fff; box-shadow:0 6px 16px -8px var(--brand-2); }
+  .cta--ink:hover { background:var(--brand-2); transform:translateY(-2px); box-shadow:0 12px 24px -10px var(--brand-2); }
+  .cta--line { background:#fff; color:var(--ink); border:1.5px solid var(--ink); }
+  .cta--line:hover { background:var(--ink); color:#fff; transform:translateY(-2px); }
+  .surface { position:relative; background:radial-gradient(120% 90% at 50% 45%, #F1EEE5 0%, #E9E6DC 70%, #E3DFD3 100%); display:grid; place-items:center; padding:48px 56px; }
+  .surface__in { width:min(640px,100%); }
+  .surface__in img { width:100%; display:block; border-radius:8px; box-shadow:0 30px 60px rgba(0,0,0,.28), 0 0 0 1px rgba(0,0,0,.1); }
+
+  /* the torn band and the postcard wall */
+  .torn { clip-path:polygon(0 1.2%, 2% 0, 5% 1.4%, 9% .3%, 13% 1.6%, 18% .4%, 23% 1.5%, 29% .2%, 34% 1.4%, 40% .5%, 46% 1.6%, 52% .3%, 58% 1.5%, 64% .4%, 70% 1.6%, 76% .2%, 82% 1.4%, 88% .5%, 94% 1.5%, 100% .3%, 100% 98.8%, 97% 100%, 93% 98.6%, 88% 99.7%, 82% 98.5%, 76% 99.6%, 70% 98.4%, 64% 99.8%, 58% 98.5%, 52% 99.7%, 46% 98.4%, 40% 99.6%, 34% 98.6%, 28% 99.8%, 22% 98.5%, 16% 99.7%, 10% 98.4%, 5% 99.6%, 1% 98.7%, 0 100%); }
+  .band { position:relative; z-index:8; margin-top:-30px; padding:72px 0 56px; background:var(--brand-2); color:var(--parchment); }
+  .band__in { max-width:1240px; margin:0 auto; display:grid; gap:28px; }
+  .band__head { display:flex; align-items:end; justify-content:space-between; gap:32px; padding:0 40px; }
+  .band__title { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; font-size:2.6rem; letter-spacing:.04em; text-transform:uppercase; line-height:1; margin:0; }
+  .band__lede { font-size:1.05rem; margin-top:10px; opacity:.92; max-width:60ch; }
+  .band__link { font-size:.8rem; letter-spacing:.2em; font-weight:700; border-bottom:2px solid currentColor; padding-bottom:3px; white-space:nowrap; }
+  .wall { list-style:none; margin:0; padding:0 40px; display:grid; grid-template-columns:repeat(3,1fr); gap:28px 24px; }
+  .ccard { background:var(--parchment); border:1px solid rgba(62,52,39,.25); border-radius:4px; padding:10px 10px 16px; display:grid; gap:12px; box-shadow:0 16px 34px rgba(0,0,0,.35); transition:transform .5s cubic-bezier(.16,1,.3,1), box-shadow .5s; }
+  .ccard:hover { transform:translateY(-6px) rotate(0deg) !important; box-shadow:0 24px 48px rgba(0,0,0,.45); }
+  .ccard__img { aspect-ratio:3/2; border-radius:2px; display:grid; place-items:center; overflow:hidden; padding:22px 26px; }
+  .ccard__img img { width:100%; height:100%; object-fit:cover; object-position:top left; border-radius:7px; background:#fff; box-shadow:0 10px 24px rgba(31,38,26,.4); border:1px solid rgba(0,0,0,.15); }
+  .ccard__img.phone { padding:18px 26px 0; align-items:end; }
+  .ccard__img.phone img { width:58%; height:auto; max-height:none; object-fit:cover; object-position:top; border-radius:16px 16px 0 0; aspect-ratio:1206/1600; }
+  .ccard__plaque { display:grid; gap:4px; padding:2px 6px 0; color:var(--espresso); }
+  .plaque__name { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:.02em; font-size:1.35rem; line-height:1; }
+  .plaque__role { color:var(--brand); font-size:.9rem; font-weight:600; }
+  .plaque__out { font-size:.9rem; line-height:1.55; color:#4a4036; }
+
+  /* feature rows */
+  .rows { display:grid; gap:64px; }
+  .row { display:grid; grid-template-columns:1fr 1.15fr; gap:48px; align-items:center; }
+  .row:nth-child(even) .row__t { order:2; }
+  .row__t { display:grid; gap:10px; }
+  .row__t h3 { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:.02em; font-size:34px; line-height:1; margin:0; }
+  .row__still { background:#fff; border:1px solid var(--line); border-radius:16px; padding:14px; box-shadow:0 24px 48px -28px rgba(0,0,0,.35); }
+  .row__still img { width:100%; display:block; border-radius:8px; }
+  .row__still.phones { display:flex; gap:14px; justify-content:center; background:var(--tint); }
+  .row__still.phones img { width:200px; border-radius:22px; border:6px solid #1a2a30; }
+
+  /* the sheet */
+  .sheet { background:#fff; border:1px solid var(--ink); box-shadow:0 16px 34px rgba(0,0,0,.14); display:grid; grid-template-columns:repeat(3,1fr); }
+  .col { position:relative; padding:36px 32px 32px; display:grid; grid-template-rows:auto auto auto 1fr auto; gap:18px; transition:background .25s, transform .3s cubic-bezier(.16,1,.3,1), box-shadow .3s; }
+  .col:hover { background:var(--cream); transform:translateY(-4px); box-shadow:0 18px 40px -20px rgba(0,0,0,.45); z-index:1; }
+  .col + .col { border-left:1px dashed rgba(0,0,0,.35); }
+  .col--star { background:var(--cream); }
+  .col__tag { position:absolute; top:0; left:32px; translate:0 -50%; background:var(--brand); color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.16em; padding:5px 10px; }
+  .col__name { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:.04em; font-size:1.1rem; color:var(--ink-2); margin:0; }
+  .col__price { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; font-size:3rem; line-height:1; letter-spacing:-.01em; margin:0; }
+  .col__price span.unit, .col__price span:last-child:not([data-m]) { font-family:'Nunito Sans', system-ui, sans-serif; font-weight:600; font-size:.85rem; color:var(--ink-2); margin-left:8px; letter-spacing:0; }
+  .col__year { font-size:.85rem; color:var(--ink-2); margin:-8px 0 0; }
+  .col__list { display:grid; gap:8px; font-size:.95rem; padding:6px 0 4px; margin:0; list-style:none; }
+  .col__list li { position:relative; padding-left:18px; }
+  .col__list li::before { content:""; position:absolute; left:0; top:.7em; width:10px; border-top:2px solid var(--brand); }
+  .col__foot .cta { width:100%; min-width:0; height:50px; }
+  .toggle { display:inline-flex; border:1px solid var(--ink); background:#fff; }
+  .toggle button { border:0; background:transparent; padding:10px 18px; font:inherit; font-weight:700; font-size:12px; letter-spacing:.12em; text-transform:uppercase; cursor:pointer; color:var(--ink-2); }
+  .toggle button.on { background:var(--ink); color:#fff; }
+  .toggle .save { color:var(--brand); margin-left:6px; }
+  .toggle button.on .save { color:#9fd6cf; }
+  .branch { display:flex; align-items:center; justify-content:space-between; gap:24px; background:#fff; border:1px solid var(--ink); padding:22px 28px; }
+  .branch h3 { font-family:Rubik, "Arial Narrow", Impact, sans-serif; font-weight:800; text-transform:uppercase; letter-spacing:.02em; font-size:20px; margin:0 0 4px; }
+  .branch p { margin:0; font-size:15px; color:var(--ink-2); max-width:60ch; }
+  .fine { font-size:13px; color:var(--ink-2); max-width:80ch; margin:0; }
+
+  /* the web sheet */
+  .wcard { background:#fff; border:1px solid var(--line); border-radius:18px; padding:26px; display:grid; grid-template-rows:auto auto auto 1fr auto; gap:14px; }
+  .wcard .col__price { font-size:2.2rem; }
+  .wcard .cta { width:100%; min-width:0; height:48px; }
+
+  /* faq */
+  .faq { display:grid; grid-template-columns:1fr 1fr; gap:28px 48px; }
+  .faq h4 { margin:0 0 4px; font-size:15px; }
+  .faq p { margin:0; color:var(--ink-2); font-size:14.5px; line-height:1.55; }
+
+  .inkband { background:var(--brand-2); color:#F5F4EE; }
+  .inkband__in { max-width:1120px; margin:0 auto; padding:96px 40px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:24px; }
+  .inkband img { height:34px; }
+  .h2--light { color:#F5F4EE; font-size:46px; }
+  footer { border-top:1px solid var(--line); }
+  .foot { max-width:1120px; margin:0 auto; padding:48px 24px; display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:32px; font-size:12.5px; }
+  .foot img { height:20px; display:block; margin-bottom:12px; }
+  .foot ul { list-style:none; padding:0; margin:0; display:grid; gap:6px; color:var(--ink-2); }
+  .foot .kicker { color:var(--ink-3); margin-bottom:10px; }
+  .foot__bar { border-top:1px solid var(--line); }
+  .foot__bar p { max-width:1120px; margin:0 auto; padding:0 24px; height:44px; display:flex; align-items:center; font-size:11px; color:var(--ink-3); }
+  .sub { color:var(--ink-2); }
+
+  @media (max-width:1120px) { .bar__status { display:none } }
+  @media (max-width:1000px) { .spread { grid-template-columns:1fr; min-height:0 } .surface { display:none } .hero__h1 { font-size:44px } .wall { grid-template-columns:repeat(2,1fr) } }
+  @media (max-width:900px) { .bar { padding:12px 16px } .bar__links { display:none } .sheet { grid-template-columns:1fr } .col + .col { border-left:0; border-top:1px dashed rgba(0,0,0,.35) } .row, .row:nth-child(even) { grid-template-columns:1fr } .row:nth-child(even) .row__t { order:0 } .faq { grid-template-columns:1fr } .foot { grid-template-columns:1fr } .branch { flex-direction:column; align-items:flex-start } .wrap { padding:64px 20px } .h2 { font-size:32px } }
+  @media (max-width:640px) { .wall { grid-template-columns:1fr } .band__head { flex-direction:column; align-items:start } }
+</style>
+</head>
+<body>
+
+<header class="bar">
+  <a class="bar__logo" href="#"><img src="img/akhada.svg" alt="Akhada"></a>
+  <nav class="bar__links">
+    <a href="#product">Product</a>
+    <a href="#pricing">Pricing</a>
+    <a href="https://sahilshahcse.github.io/akhada-web/">Sign in</a>
+  </nav>
+  <span class="bar__status"><i></i>Made in Vadodara</span>
+</header>
+
+<section class="spread">
+  <div class="hero">
+    <div class="hero__in">
+      <h1 class="hero__h1">Run the gym,<br>not the<br>register.</h1>
+      <p class="hero__p">Members, check-ins and money in one place. A console for the owner, an app for the staff, an app for every member. It shows you the lists and the money; you pick up the phone.</p>
+      <div class="hero__ctas">
+        <a class="cta cta--ink" href="#pricing">See the price</a>
+        <a class="cta cta--line" href="mailto:sahilshah.apps@gmail.com?subject=Akhada%20demo">Book a demo</a>
+      </div>
+      <p class="hero__note">One product, one price for the gym. Every feature, the web app and the mobile app, on every plan.</p>
+    </div>
+  </div>
+  <div class="surface"><div class="surface__in"><img src="img/console-dashboard.png" alt="The owner's dashboard"></div></div>
+</section>
+
+<section class="band torn" id="product">
+  <div class="band__in">
+    <div class="band__head">
+      <div>
+        <h2 class="band__title">What Akhada does</h2>
+        <p class="band__lede">Members. Check-ins. Money. Every room on the web and on the phone.</p>
+      </div>
+      <a class="band__link" href="#pricing">SEE THE PRICE →</a>
+    </div>
+    <ul class="wall">
+      <li class="ccard" style="transform:rotate(-.6deg)"><div class="ccard__img" style="background:#DCE6E0"><img src="img/console-member.png" alt=""></div><div class="ccard__plaque"><div class="plaque__name">Members</div><div class="plaque__role">One record, every tab</div><div class="plaque__out">Plan in force, days left, dues, plans, payments, attendance, fitness. Sell a plan, freeze it, record a payment from the record.</div></div></li>
+      <li class="ccard" style="transform:rotate(.5deg)"><div class="ccard__img" style="background:#CFD6D2"><img src="img/wall-live.png" alt=""></div><div class="ccard__plaque"><div class="plaque__name">Check-ins</div><div class="plaque__role">Who is in, right now</div><div class="plaque__out">The desk presses a button, the member scans the poster, the trainer punches their own day. Live floor, busy hours, who has stopped coming.</div></div></li>
+      <li class="ccard" style="transform:rotate(-.4deg)"><div class="ccard__img" style="background:#D6CFC2"><img src="img/console-pnl.png" alt=""></div><div class="ccard__plaque"><div class="plaque__name">Money</div><div class="plaque__role">What came in, what went out</div><div class="plaque__out">Collections by cash, UPI and card. Expenses, recurring bills, machines on EMI, salaries paid in parts. Profit and loss by the month.</div></div></li>
+      <li class="ccard" style="transform:rotate(.6deg)"><div class="ccard__img phone" style="background:#DCE6E0"><img src="img/phone-staff.png" alt=""></div><div class="ccard__plaque"><div class="plaque__name">Staff app</div><div class="plaque__role">The trainer and the desk</div><div class="plaque__out">Punch your own day from Home. Check members in, sell plans, follow up enquiries. The owner sets who may do what.</div></div></li>
+      <li class="ccard" style="transform:rotate(-.5deg)"><div class="ccard__img phone" style="background:#CFD6D2"><img src="img/phone-member.png" alt=""></div><div class="ccard__plaque"><div class="plaque__name">Member app</div><div class="plaque__role">Their gym in their pocket</div><div class="plaque__out">The workout and diet the trainer gave them, this month's attendance, days left on the plan, and one circle to check in and out.</div></div></li>
+      <li class="ccard" style="transform:rotate(.4deg)"><div class="ccard__img" style="background:#D6CFC2"><img src="img/console-door.png" alt=""></div><div class="ccard__plaque"><div class="plaque__name">The door</div><div class="plaque__role">A poster, not a machine</div><div class="plaque__out">Print the code, stick it by the door. Members scan it from the app; the phone's location is checked, so a photo from home does nothing.</div></div></li>
+    </ul>
+  </div>
+</section>
+
+<section class="wrap band-sec">
+  <div class="head">
+    <p class="kicker">On paper too</p>
+    <h2 class="h2">Invoices, posters, reports.</h2>
+    <p class="p">Every invoice is a clean PDF with the gym's name on it. The door poster is one click. Every report downloads as a spreadsheet.</p>
+  </div>
+  <div class="rows">
+    <div class="row">
+      <div class="row__t"><p class="kicker">Billing</p><h3>Every rupee on a page</h3><p class="p">Invoices with a PAID or DUE stamp, part payments, reversals that stay on the record. Dues in one list, with the phone number beside the amount.</p></div>
+      <div class="row__still" style="display:grid; grid-template-columns:1fr 1fr; gap:14px"><img src="img/invoice.png" alt="An invoice"><img src="img/poster.png" alt="The door poster"></div>
+    </div>
+    <div class="row">
+      <div class="row__t"><p class="kicker">Reports</p><h3>The month, by the numbers</h3><p class="p">Collections, footfall, members, plans sold. Six months on the dashboard, any span in Reports, every table exportable.</p></div>
+      <div class="row__still"><img src="img/wall-reports.png" alt="Reports"></div>
+    </div>
+    <div class="row">
+      <div class="row__t"><p class="kicker">Renewals</p><h3>Who needs a call</h3><p class="p">Expiring this fortnight, lapsed, not seen in a week, owing money. Each a list with a phone number. You call; nothing messages your members behind your back.</p></div>
+      <div class="row__still"><img src="img/wall-renewals.png" alt="Renewals"></div>
+    </div>
+  </div>
+</section>
+
+<section class="wrap band-sec" id="pricing" style="padding-top:0">
+  <div class="head">
+    <p class="kicker">Pricing</p>
+    <h2 class="h2">One product. One price for the gym.</h2>
+    <p class="p">Every plan is everything: the web app, the mobile app, every feature, every face. The only thing that changes is how many members and staff you have. GST extra. Cancel any month.</p>
+  </div>
+  <div class="toggle" role="tablist">
+    <button class="on" data-cycle="month">Monthly</button>
+    <button data-cycle="year">Yearly <span class="save">2 months free</span></button>
+  </div>
+  <div class="sheet">
+    <div class="col">
+      <p class="col__name">Starter</p>
+      <p class="col__price"><span data-m="999" data-y="9,990">₹999</span><span class="unit">a month</span></p>
+      <p class="col__year" data-note-m="or ₹9,990 a year" data-note-y="₹9,990 a year, billed once"></p>
+      <ul class="col__list">
+        <li>Every feature, web app and mobile app</li>
+        <li>Up to 150 members</li>
+        <li>Owner + 2 staff logins</li>
+        <li>Unlimited members on the member app</li>
+        <li>Email support</li>
+      </ul>
+      <div class="col__foot"><a class="cta cta--line" href="mailto:sahilshah.apps@gmail.com?subject=Akhada%20demo">Choose Starter</a></div>
+    </div>
+    <div class="col col--star">
+      <span class="col__tag">MOST GYMS</span>
+      <p class="col__name">Standard</p>
+      <p class="col__price"><span data-m="1,999" data-y="19,990">₹1,999</span><span class="unit">a month</span></p>
+      <p class="col__year" data-note-m="or ₹19,990 a year" data-note-y="₹19,990 a year, billed once"></p>
+      <ul class="col__list">
+        <li>Every feature, web app and mobile app</li>
+        <li>Up to 500 members</li>
+        <li>Owner + 6 staff logins</li>
+        <li>Your members brought in from your register</li>
+        <li>Phone support</li>
+      </ul>
+      <div class="col__foot"><a class="cta cta--ink" href="mailto:sahilshah.apps@gmail.com?subject=Akhada%20demo">Choose Standard</a></div>
+    </div>
+    <div class="col">
+      <p class="col__name">Large</p>
+      <p class="col__price"><span data-m="3,499" data-y="34,990">₹3,499</span><span class="unit">a month</span></p>
+      <p class="col__year" data-note-m="or ₹34,990 a year" data-note-y="₹34,990 a year, billed once"></p>
+      <ul class="col__list">
+        <li>Every feature, web app and mobile app</li>
+        <li>Unlimited members</li>
+        <li>Owner + 15 staff logins</li>
+        <li>On-site setup and your logo everywhere</li>
+        <li>Phone support, same day</li>
+      </ul>
+      <div class="col__foot"><a class="cta cta--line" href="mailto:sahilshah.apps@gmail.com?subject=Akhada%20demo">Choose Large</a></div>
+    </div>
+  </div>
+  <div class="branch">
+    <div>
+      <h3>More than one branch?</h3>
+      <p>Every branch is its own gym on one login, with its own door code, staff and books. Tell us how many and we price it as one, with a proper discount.</p>
+    </div>
+    <a class="cta cta--ink" href="mailto:sahilshah.apps@gmail.com?subject=Akhada%20demo">Ask for multi-branch pricing</a>
+  </div>
+  <p class="fine">Members are a soft limit: nobody is ever refused at the door because you grew past your plan; we will ask you to move up next month. Staff logins are the hard limit, extra ones ₹149 a month each. Prices in INR, GST at 18% extra. Yearly is billed once and works out to ten months.</p>
+</section>
+
+<section class="wrap band-sec" style="padding-top:0">
+  <div class="head">
+    <p class="kicker">Questions</p>
+    <h2 class="h2">What gyms ask us</h2>
+  </div>
+  <div class="faq">
+    <div><h4>Do my members need to download anything?</h4><p>Only if they want the member app. The desk can always check anyone in without it.</p></div>
+    <div><h4>Can a member check in from home with a photo of the poster?</h4><p>No. The app sends the phone's location and the gym's fence refuses anything outside it. You can also turn scanning off and use location alone.</p></div>
+    <div><h4>What about face recognition or a turnstile?</h4><p>We do not do it. A desk, a poster and a phone are enough for a gym, and they cost nothing to run.</p></div>
+    <div><h4>Is my data mine?</h4><p>Yes. Export any list as a spreadsheet any time. If you leave, we hand you everything and delete our copy.</p></div>
+    <div><h4>Can I try it first?</h4><p>A demo gym with three months of real-looking data is one call away. Then a 14-day trial on your own gym.</p></div>
+    <div><h4>What do I need?</h4><p>A laptop with a browser for the owner, and phones with the app for staff and members. No server, no installation, no card reader.</p></div>
+  </div>
+</section>
+
+<section class="inkband" id="contact">
+  <div class="inkband__in">
+    <img src="img/akhada-white.svg" alt="Akhada">
+    <h2 class="h2 h2--light">Run the gym, not the register.</h2>
+    <p style="font-size:15px; color:#B8D8D6; margin:0">Twenty minutes on a call, or at your gym if you are in Vadodara. Bring your member register; we will show you your gym inside it.</p>
+    <a class="cta cta--line" href="mailto:sahilshah.apps@gmail.com" style="background:#F5F4EE; color:#1A1A1A; border-color:#F5F4EE">Book a demo</a>
+  </div>
+</section>
+
+<footer>
+  <div class="foot">
+    <div><img src="img/akhada.svg" alt="Akhada"><p class="sub" style="max-width:300px; margin:0">Run the gym, not the register.</p></div>
+    <div><p class="kicker">Product</p><ul><li><a href="#product">What it does</a></li><li><a href="#pricing">Pricing</a></li><li><a href="https://sahilshahcse.github.io/akhada-web/">Sign in</a></li></ul></div>
+    <div><p class="kicker">Contact</p><ul><li><a href="mailto:sahilshah.apps@gmail.com">sahilshah.apps@gmail.com</a></li></ul></div>
+  </div>
+  <div class="foot__bar"><p>Akhada · Vadodara, India · Prices in INR, GST extra</p></div>
+</footer>
+
+<script>
+  const buttons = document.querySelectorAll('.toggle button');
+  const apply = (yearly) => {
+    document.querySelectorAll('.col__price span[data-m]').forEach(s => {
+      s.textContent = '₹' + (yearly ? s.dataset.y : s.dataset.m);
+      s.nextElementSibling.textContent = yearly ? 'a year' : 'a month';
+    });
+    document.querySelectorAll('.col__year[data-note-m]').forEach(n => n.textContent = yearly ? n.dataset.noteY : n.dataset.noteM);
+  };
+  buttons.forEach(b => b.addEventListener('click', () => { buttons.forEach(x => x.classList.toggle('on', x === b)); apply(b.dataset.cycle === 'year'); }));
+  apply(false);
+</script>
+</body>
+</html>
